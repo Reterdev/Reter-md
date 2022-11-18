@@ -472,9 +472,9 @@ Selama ${clockString(new Date - user.afkTime)}
             }
             break
             
-//Pembatas===============================================
+//Pembatas===========================================
             case prefix+'join': {
-                if (!isCreator) throw 
+                if (!isCreator) throw m.reply(`Khusus owner`)
                 if (!text) throw 'Masukkan Link Group!'
                 if (!isUrl(args[0]) && !args[0].includes('whatsapp.com')) throw 'Link Invalid!'
                 m.reply(mess.wait)
@@ -483,22 +483,22 @@ Selama ${clockString(new Date - user.afkTime)}
             }
             break
             case prefix+'leave': {
-                if (!isCreator) throw 
+                if (!isCreator) return
                 await reter.groupLeave(m.chat).then((res) => m.reply(jsonformat(res))).catch((err) => m.reply(jsonformat(err)))
             }
             break
 	case prefix+'kick': {
-		if (!m.isGroup) throw
-                if (!isBotAdmins) throw
-                if (!isAdmins) throw
+		if (!m.isGroup) return
+                if (!isBotAdmins) return
+                if (!isAdmins) return
 		let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
 		await reter.groupParticipantsUpdate(m.chat, [users], 'remove').then((res) => m.reply(jsonformat(res))).catch((err) => m.reply(jsonformat(err)))
 	}
             break
             case prefix+'antilink': {
-                if (!m.isGroup) throw 
-                if (!isBotAdmins) throw 
-                if (!isAdmins) throw 
+                if (!m.isGroup) return
+                if (!isBotAdmins) return
+                if (!isAdmins) return
                 if (args[0] === "on") {
                 if (db.data.chats[m.chat].antilink) return m.reply(`*Sudah Aktif kak Sebelumnya*`)
                 db.data.chats[m.chat].antilink = true
@@ -517,9 +517,9 @@ Selama ${clockString(new Date - user.afkTime)}
              }
              break
              case prefix+'mute': {
-                if (!m.isGroup) throw 
-                if (!isBotAdmins) throw 
-                if (!isAdmins) throw 
+                if (!m.isGroup) return
+                if (!isBotAdmins) return
+                if (!isAdmins) return 
                 if (args[0] === "on") {
                 if (db.data.chats[m.chat].mute) return m.reply(`Sudah Aktif Sebelumnya`)
                 db.data.chats[m.chat].mute = true
