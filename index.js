@@ -86,57 +86,6 @@ async function startReter() {
             console.log(err)
         }
     })
-    
-    reter.ev.on('group-participants.update', async (anu) => {
-        console.log(anu)
-        try {
-            let metadata = await reter.groupMetadata(anu.id)
-            let participants = anu.participants
-            for (let num of participants) {
-                // Get Profile Picture User
-                try {
-                    ppuser = await reter.profilePictureUrl(num, 'image')
-                } catch {
-                    ppuser = 'https://i0.wp.com/www.gambarunik.id/wp-content/uploads/2019/06/Top-Gambar-Foto-Profil-Kosong-Lucu-Tergokil-.jpg'
-                }
-                
-                //Resize
-         const reSize = async(buffer, ukur1, ukur2) => {
-             return new Promise(async(resolve, reject) => {
-             let jimp = require('jimp')
-             var baper = await jimp.read(buffer);
-             var ab = await baper.resize(ukur1, ukur2).getBufferAsync(jimp.MIME_JPEG)
-             resolve(ab)
-             })
-             }
-
-                // Get Profile Picture Group
-                try {
-                    ppgroup = await reter.profilePictureUrl(anu.id, 'image')
-                } catch {
-                    ppgroup = 'https://i0.wp.com/www.gambarunik.id/wp-content/uploads/2019/06/Top-Gambar-Foto-Profil-Kosong-Lucu-Tergokil-.jpg'
-                }
-                
-                let butwel = [{ buttonId: 'HiJuga', buttonText: { displayText: 'Hi Beban' }, type: 1 }]
-                let butleav = [{ buttonId: 'subsyt', buttonText: { displayText: 'Beban Keluar' }, type: 1 }]
-                let butselamat = [{ buttonId: '', buttonText: { displayText: 'SELAMAT' }, type: 1 }]
-                let butsebar = [{ buttonId: '', buttonText: { displayText: 'SABAR' }, type: 1 }]
-                let watermak = ('ReterBotz')
-                let teks1 = `һᥲі kᥲk @${num.split('@')[0]} sᥱᥣᥲmᥲ𝗍 ძᥲ𝗍ᥲᥒg ძі gr᥆ᥙ⍴ ${metadata.subject}*\n\n\n*іᥒ𝗍r᥆*\n📝ᥒᥲmᥲ :\n🌍k᥆𝗍ᥲ :\n🌈ᥙmᥙr :\n📂⍴r᥆᥎іᥒsі :`
-                let teks3 = `*@${num.split('@')[0]} Promote From*\n*${metadata.subject}*\n*Selamat Anda Menjadi Admin*\n_~Jangan Semena Mena!_`
-                let teks4 = `*@${num.split('@')[0]} Demote From*\n*${metadata.subject}*\n_Kasihan Turun Pangkat🤭_`
-                if (anu.action == 'add') {
-                    reter.sendMessage(anu.id, { caption: teks1, location: { jpegThumbnail: await reSize(ppuser, 200, 300)}, buttons: butwel, footer: watermak, mentions: [num] })
-                } else if (anu.action == 'promote') {
-                    reter.sendMessage(anu.id, { caption: teks3, location: { jpegThumbnail: await reSize(ppuser, 30, 30)}, buttons: butselamat, footer: watermak, mentions: [num] })
-                } else if (anu.action == 'demote') {
-                    reter.sendMessage(anu.id, { caption: teks4, location: { jpegThumbnail: await reSize(ppuser, 30, 30)}, buttons: butsebar, footer: watermak, mentions: [num] })
-              }
-            }
-        } catch (err) {
-            console.log(err)
-        }
-    })
 	
     // Setting
     reter.decodeJid = (jid) => {
@@ -217,7 +166,7 @@ async function startReter() {
             else if (reason === DisconnectReason.timedOut) { console.log("Connection TimedOut, Reconnecting..."); startReter(); }
             else reter.end(`Unknown DisconnectReason: ${reason}|${connection}`)
         }
-        console.log('Connected...', update)
+        console.log('Berhasil Connected Di Server Reter', update)
     })
 
     reter.ev.on('creds.update', saveState)

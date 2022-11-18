@@ -146,18 +146,6 @@ module.exports = reter = async (reter, m, chatUpdate, store) => {
             if (typeof setting !== 'object') global.db.data.settings[botNumber] = {}
 	    if (setting) {
 		if (!isNumber(setting.status)) setting.status = 0
-		if (!('autobio' in setting)) setting.autobio = false
-		if (!('templateImage' in setting)) setting.templateImage = true
-		if (!('templateVideo' in setting)) setting.templateVideo = false
-		if (!('templateGif' in setting)) setting.templateGif = false
-		if (!('templateMsg' in setting)) setting.templateMsg = false	
-	    } else global.db.data.settings[botNumber] = {
-		status: 0,
-		autobio: false,
-		templateImage: true,
-		templateVideo: false,
-		templateGif: false,
-		templateMsg: false,
 	    }
 	    
         } catch (err) {
@@ -168,38 +156,11 @@ module.exports = reter = async (reter, m, chatUpdate, store) => {
         if (!reter.public) {
             if (!m.key.fromMe) return
         }
-        if (m.message) {
-            reter.readMessages([m.key])
-        }
-            
-             
-	// reset limit every 12 hours
-        let cron = require('node-cron')
-        cron.schedule('00 12 * * *', () => {
-            let user = Object.keys(global.db.data.users)
-            let limitUser = isPremium ? global.limitawal.premium : global.limitawal.free
-            for (let jid of user) global.db.data.users[jid].limit = limitUser
-            console.log('Reseted Limit')
-        }, {
-            scheduled: true,
-            timezone: "Asia/Jakarta"
-        })
-        
-	// auto set bio
-	if (db.data.settings[botNumber].autobio) {
-	    let setting = global.db.data.settings[botNumber]
-	    if (new Date() * 1 - setting.status > 1000) {
-		let uptime = await runtime(process.uptime())
-		await reter.setStatus(`${reter.user.name} | Runtime : ${runtime(uptime)}`)
-		setting.status = new Date() * 1
-	    }
-	}
-	    
+        	    
 	  // Anti Link
         if (db.data.chats[m.chat].antilink) {
         if (budy.match(`chat.whatsapp.com`)) {
-        m.reply(`「 *GROUP LINK DETECTED* 」`)
-        if (!isBotAdmins) return m.reply(`Bot harus menjadi admin terlebih dahulu`)
+        if (!isBotAdmins) return 
         let gclink = (`https://chat.whatsapp.com/`+await reter.groupInviteCode(m.chat))
         let isLinkThisGc = new RegExp(gclink, 'i')
         let isgclink = isLinkThisGc.test(m.text)
@@ -512,14 +473,8 @@ Selama ${clockString(new Date - user.afkTime)}
             break
             
 //Pembatas===============================================
-            case prefix+'runtime': {
-            	let lowq = `*Bot Telah Online Selama*\n*${runtime(process.uptime())}*`
-                let buttons = [{ buttonId: '#menu', buttonText: { displayText: 'List Menu' }, type: 1 }]
-                await reter.sendButtonText(m.chat, buttons, lowq, watermak, m, {quoted: fkontak})
-            	}
-            break  
             case prefix+'join': {
-                if (!isCreator) throw mess.owner
+                if (!isCreator) throw 
                 if (!text) throw 'Masukkan Link Group!'
                 if (!isUrl(args[0]) && !args[0].includes('whatsapp.com')) throw 'Link Invalid!'
                 m.reply(mess.wait)
@@ -528,164 +483,22 @@ Selama ${clockString(new Date - user.afkTime)}
             }
             break
             case prefix+'leave': {
-                if (!isCreator) throw mess.owner
+                if (!isCreator) throw 
                 await reter.groupLeave(m.chat).then((res) => m.reply(jsonformat(res))).catch((err) => m.reply(jsonformat(err)))
             }
             break
-            case prefix+'setexif': {
-               if (!isCreator) throw mess.owner
-               if (!text) throw `Example : ${prefix + command} packname|author`
-          global.packname = text.split("|")[0]
-          global.author = text.split("|")[1]
-          m.reply(`Exif berhasil diubah menjadi\n\n⌗ Packname : ${global.packname}\n⌗ Author : ${global.author}`)
-            }
-            break
 	case prefix+'kick': {
-		if (!m.isGroup) throw mess.group
-                if (!isBotAdmins) throw mess.botAdmin
-                if (!isAdmins) throw mess.admin
+		if (!m.isGroup) throw
+                if (!isBotAdmins) throw
+                if (!isAdmins) throw
 		let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
 		await reter.groupParticipantsUpdate(m.chat, [users], 'remove').then((res) => m.reply(jsonformat(res))).catch((err) => m.reply(jsonformat(err)))
 	}
-	break
-	case prefix+'promote': {
-		if (!m.isGroup) throw mess.group
-                if (!isBotAdmins) throw mess.botAdmin
-                if (!isAdmins) throw mess.admin
-		let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
-		await reter.groupParticipantsUpdate(m.chat, [users], 'promote').then((res) => m.reply(jsonformat(res))).catch((err) => m.reply(jsonformat(err)))
-	}
-	break
-	case prefix+'demote': {
-		if (!m.isGroup) throw mess.group
-                if (!isBotAdmins) throw mess.botAdmin
-                if (!isAdmins) throw mess.admin
-		let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
-		await reter.groupParticipantsUpdate(m.chat, [users], 'demote').then((res) => m.reply(jsonformat(res))).catch((err) => m.reply(jsonformat(err)))
-	}
-	break
-        case prefix+'block': {
-		if (!isCreator) throw mess.owner
-		let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
-		await reter.updateBlockStatus(users, 'block').then((res) => m.reply(jsonformat(res))).catch((err) => m.reply(jsonformat(err)))
-	}
-	break
-        case prefix+'unblock': {
-		if (!isCreator) throw mess.owner
-		let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
-		await reter.updateBlockStatus(users, 'unblock').then((res) => m.reply(jsonformat(res))).catch((err) => m.reply(jsonformat(err)))
-	}
-	break
-	    case prefix+'setname': {
-                if (!m.isGroup) throw mess.group
-                if (!isBotAdmins) throw mess.botAdmin
-                if (!isAdmins) throw mess.admin
-                if (!text) throw 'Text ?'
-                await reter.groupUpdateSubject(m.chat, text).then((res) => m.reply(mess.success)).catch((err) => m.reply(jsonformat(err)))
-            }
-            break
-          case prefix+'setdesc': {
-                if (!m.isGroup) throw mess.group
-                if (!isBotAdmins) throw mess.botAdmin
-                if (!isAdmins) throw mess.admin
-                if (!text) throw 'Text ?'
-                await reter.groupUpdateDescription(m.chat, text).then((res) => m.reply(mess.success)).catch((err) => m.reply(jsonformat(err)))
-            }
-            break
-          case prefix+'setppbot': {
-                if (!isCreator) throw mess.owner
-                if (!quoted) throw `Kirim/Reply Image Dengan Caption ${prefix + command}`
-                if (!/image/.test(mime)) throw `Kirim/Reply Image Dengan Caption ${prefix + command}`
-                if (/webp/.test(mime)) throw `Kirim/Reply Image Dengan Caption ${prefix + command}`
-                let media = await reter.downloadAndSaveMediaMessage(quoted)
-                await reter.updateProfilePicture(botNumber, { url: media }).catch((err) => fs.unlinkSync(media))
-                m.reply(mess.success)
-                }
-                break
-           case prefix+'setppgc':  {
-                if (!m.isGroup) throw mess.group
-                if (!isAdmins) throw mess.admin
-                if (!quoted) throw `Kirim/Reply Image Dengan Caption ${prefix + command}`
-                if (!/image/.test(mime)) throw `Kirim/Reply Image Dengan Caption ${prefix + command}`
-                if (/webp/.test(mime)) throw `Kirim/Reply Image Dengan Caption ${prefix + command}`
-                let media = await reter.downloadAndSaveMediaMessage(quoted)
-                await reter.updateProfilePicture(m.chat, { url: media }).catch((err) => fs.unlinkSync(media))
-                m.reply(mess.success)
-                }
-                break
-            case prefix+'tagall': {
-                if (!m.isGroup) throw mess.group
-                if (!isBotAdmins) throw mess.botAdmin
-                if (!isAdmins) throw mess.admin
-let teks = `══✪〘 *👥 Tag All* 〙✪══
- 
- ➲ *Pesan : ${q ? q : 'kosong'}*\n\n`
-                for (let mem of participants) {
-                teks += `⌗ @${mem.id.split('@')[0]}\n`
-                }
-                reter.sendMessage(m.chat, { text: teks, mentions: participants.map(a => a.id) }, { quoted: m })
-                }
-                break
-                case prefix+'hidetag': {
-            if (!m.isGroup) throw mess.group
-            if (!isBotAdmins) throw mess.botAdmin
-            if (!isAdmins) throw mess.admin
-            reter.sendMessage(m.chat, { text : q ? q : '' , mentions: participants.map(a => a.id)}, { quoted: m })
-            }
-            break
-	    case prefix+'style': {
-	        if (!isPremium && global.db.data.users[m.sender].limit < 1) return m.reply(mess.endLimit) // respon ketika limit habis
-		db.data.users[m.sender].limit -= 1 // -1 limit
-		let { styletext } = require('./lib/scraper')
-		if (!text) throw 'Masukkan Query text!'
-                let anu = await styletext(text)
-                let teks = `Srtle Text From ${text}\n\n`
-                for (let i of anu) {
-                    teks += `⌗ *${i.name}* : ${i.result}\n\n`
-                }
-                m.reply(teks)
-	    }
-            break
-               case prefix+'group': {
-                if (!m.isGroup) throw mess.group
-                if (!isBotAdmins) throw mess.botAdmin
-                if (!isAdmins) throw mess.admin
-                if (args[0] === 'close'){
-                    await reter.groupSettingUpdate(m.chat, 'announcement').then((res) => m.reply(`*Sukses Menutup Group*`)).catch((err) => m.reply(jsonformat(err)))
-                } else if (args[0] === 'open'){
-                    await reter.groupSettingUpdate(m.chat, 'not_announcement').then((res) => m.reply(`*Sukses Membuka Group*`)).catch((err) => m.reply(jsonformat(err)))
-                } else {
-                let buttons = [
-                        { buttonId: '#group open', buttonText: { displayText: 'Group Buka' }, type: 1 },
-                        { buttonId: '#group close', buttonText: { displayText: 'Group Tutup' }, type: 1 }
-                    ]
-                    await reter.sendButtonText(m.chat, buttons, `Mode Group`, reter.user.name, m)
-
-             }
-            }
-            break
-            case prefix+'editinfo': {
-                if (!m.isGroup) throw mess.group
-                if (!isBotAdmins) throw mess.botAdmin
-                if (!isAdmins) throw mess.admin
-             if (args[0] === 'open'){
-                await reter.groupSettingUpdate(m.chat, 'unlocked').then((res) => m.reply(`*Sukses Membuka Edit Info Group*`)).catch((err) => m.reply(jsonformat(err)))
-             } else if (args[0] === 'close'){
-                await reter.groupSettingUpdate(m.chat, 'locked').then((res) => m.reply(`*Sukses Menutup Edit Info Group*`)).catch((err) => m.reply(jsonformat(err)))
-             } else {
-             let buttons = [
-                        { buttonId: '#editinfo open', buttonText: { displayText: 'Edit Buka' }, type: 1 },
-                        { buttonId: '#editinfo close', buttonText: { displayText: 'Edit Close' }, type: 1 }
-                    ]
-                    await reter.sendButtonText(m.chat, buttons, `Mode Edit Info`, reter.user.name, m)
-
-            }
-            }
             break
             case prefix+'antilink': {
-                if (!m.isGroup) throw mess.group
-                if (!isBotAdmins) throw mess.botAdmin
-                if (!isAdmins) throw mess.admin
+                if (!m.isGroup) throw 
+                if (!isBotAdmins) throw 
+                if (!isAdmins) throw 
                 if (args[0] === "on") {
                 if (db.data.chats[m.chat].antilink) return m.reply(`*Sudah Aktif kak Sebelumnya*`)
                 db.data.chats[m.chat].antilink = true
@@ -704,9 +517,9 @@ let teks = `══✪〘 *👥 Tag All* 〙✪══
              }
              break
              case prefix+'mute': {
-                if (!m.isGroup) throw mess.group
-                if (!isBotAdmins) throw mess.botAdmin
-                if (!isAdmins) throw mess.admin
+                if (!m.isGroup) throw 
+                if (!isBotAdmins) throw 
+                if (!isAdmins) throw 
                 if (args[0] === "on") {
                 if (db.data.chats[m.chat].mute) return m.reply(`Sudah Aktif Sebelumnya`)
                 db.data.chats[m.chat].mute = true
@@ -723,59 +536,6 @@ let teks = `══✪〘 *👥 Tag All* 〙✪══
                     await prefix.sendButtonText(m.chat, buttons, `Mute Bot`, prefix.user.name, m)
                 }
              }
-             break
-            case prefix+'linkgc': {
-                if (!m.isGroup) throw mess.group
-                if (!isBotAdmins) throw mess.botAdmin
-                let response = await prefix.groupInviteCode(m.chat)
-                prefix.sendText(m.chat, `https://chat.whatsapp.com/${response}\n\n👾Link Group : ${groupMetadata.subject}`, m, { detectLink: true })
-            }
-            break
-            case prefix+'ephemeral': {
-                if (!m.isGroup) throw mess.group
-                if (!isBotAdmins) throw mess.botAdmin
-                if (!isAdmins) throw mess.admin
-                if (!text) throw 'Masukkan value enable/disable'
-                if (args[0] === 'enable') {
-                    await prefix.sendMessage(m.chat, { disappearingMessagesInChat: WA_DEFAULT_EPHEMERAL }).then((res) => m.reply(jsonformat(res))).catch((err) => m.reply(jsonformat(err)))
-                } else if (args[0] === 'disable') {
-                    await reter.sendMessage(m.chat, { disappearingMessagesInChat: false }).then((res) => m.reply(jsonformat(res))).catch((err) => m.reply(jsonformat(err)))
-                }
-            }
-            break
-            case prefix+'del': {
-                if (!m.quoted) throw false
-                let { chat, fromMe, id, isBaileys } = m.quoted
-                if (!isBaileys) throw 'Pesan tersebut bukan dikirim oleh bot!'
-                reter.sendMessage(m.chat, { delete: { remoteJid: m.chat, fromMe: true, id: m.quoted.id, participant: m.quoted.sender } })
-            }
-            break  
-            break
-            case prefix+'bcgc': {
-                if (!isCreator) throw mess.owner
-                if (!text) throw `Text mana?\n\nExample : ${prefix + command} reter-dev`
-                let getGroups = await reter.groupFetchAllParticipating()
-                let groups = Object.entries(getGroups).slice(0).map(entry => entry[1])
-                let anu = groups.map(v => v.id)
-                m.reply(`Mengirim Broadcast Ke ${anu.length} Group Chat, Waktu Selesai ${anu.length * 1.5} detik`)
-                for (let i of anu) {
-                    await sleep(1500)
-                    let txt = `「 *Broadcast Group* 」\n\n${text}`
-                    let buttons = [{ buttonId: '#menu', buttonText: { displayText: 'Menu' }, type: 1 }]
-            await reter.sendButtonText(m.chat, buttons, txt, watermak, m)
-		}}
-            break
-            case prefix+'bc': {
-                if (!isCreator) throw mess.owner
-                if (!text) throw `Text mana?\n\nExample : ${prefix + command} reter-dev`
-                let anu = await store.chats.all().map(v => v.id)
-                m.reply(`Mengirim Broadcast Ke ${anu.length} Chat\nWaktu Selesai ${anu.length * 1.5} detik`)
-		for (let yoi of anu) {
-		    await sleep(3000)
-                      let txt = `「 *Broadcast Reter Bot* 」\n\n${text}`
-                      let buttons = [{ buttonId: '#menu', buttonText: { displayText: 'Menu' }, type: 1 }]
-            await reter.sendButtonText(m.chat, buttons, txt, watermak, m)
-		}}
 		    break
             case prefix+'public': {
                 if (!isCreator) throw mess.owner
@@ -838,74 +598,6 @@ ${cpus.map((cpu, i) => `${i + 1}. ${cpu.model.trim()} (${cpu.speed} MHZ)\n${Obje
             break
             case prefix+'owner': {
                 reter.sendContact(m.chat, global.owner, m)
-            }
-            break
-            case prefix+'setmenu': {
-            if (!isCreator) throw mess.owner
-            let setbot = db.data.settings[botNumber]
-               if (args[0] === 'templateImage'){
-                setbot.templateImage = true
-                setbot.templateVideo = false
-                setbot.templateGif = false
-                setbot.templateMsg = false
-                m.reply(mess.success)
-                } else if (args[0] === 'templateVideo'){
-                setbot.templateImage = false
-                setbot.templateVideo = true
-                setbot.templateGif = false
-                setbot.templateMsg = false
-                m.reply(mess.success)
-                } else if (args[0] === 'templateGif'){
-                setbot.templateImage = false
-                setbot.templateVideo = false
-                setbot.templateGif = true
-                setbot.templateMsg = false
-                m.reply(mess.success)
-                } else if (args[0] === 'templateMessage'){
-                setbot.templateImage = false
-                setbot.templateVideo = false
-                setbot.templateGif = false
-                setbot.templateMsg = true
-                m.reply(mess.success)
-                } else {
-                let sections = [
-                {
-                title: "CHANGE MENU BOT",
-                rows: [
-                {title: "Template Image", rowId: `setmenu templateImage`, description: `Change menu bot to Template Image`},
-                {title: "Template Video", rowId: `setmenu templateVideo`, description: `Change menu bot to Template Video`},
-                {title: "Template Gif", rowId: `setmenu templateGif`, description: `Change menu bot to Template Gif`},
-                {title: "Template Message", rowId: `setmenu templateMessage`, description: `Change menu bot to Template Message`}
-                ]
-                },
-                ]
-                reter.sendListMsg(m.chat, `pilih aja *${pushname}* Setmenu nya!`, watermak, `*Hello Kak* !`, `Pilih Set Menu`, sections, m)
-                }
-            }
-            break
-            
-//PEMBATAS=======================================
-            case prefix+'menu': {
-                anu = `━━━❲ RETER BOT ❳━━━
-┏━━━━━━━━━━━━━
-┣━❲ GROUP MENU ❳
-┃▢ ${prefix}linkgroup
-┃▢ ${prefix}ephmeral [options]
-┃▢ ${prefix}setppgc [options]
-┃▢ ${prefix}setnamegc [options]
-┃▢ ${prefix}setdesc [options]
-┃▢ ${prefix}group [options]
-┃▢ ${prefix}editinfo [options]
-┃▢ ${prefix}kick [options]
-┃▢ ${prefix}hidetag [options]
-┃▢ ${prefix}tagall [options]
-┃▢ ${prefix}antilink [options]
-┃▢ ${prefix}mute [options]
-┃▢ ${prefix}promote [options]
-┃▢ ${prefix}demote [options]
-┗━━━━━━━━━━━━━━━━━━━━━`
-                let buttons = [{ buttonId: '#owner', buttonText: { displayText: 'Owner Bot' }, type: 1 }]
-            await reter.sendButtonText(m.chat, buttons, anu, watermak, m)
             }
 break
             default:
