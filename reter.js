@@ -156,6 +156,9 @@ module.exports = reter = async (reter, m, chatUpdate, store) => {
         if (!reter.public) {
             if (!m.key.fromMe) return
         }
+        if (m.message) {
+            reter.readMessages([m.key])
+        }
         	    
 	  // Anti Link
         if (db.data.chats[m.chat].antilink) {
